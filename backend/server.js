@@ -1,12 +1,19 @@
 import express from "express";
 import path from "path";
 import db from "./config/db.js";
+import dotenv from 'dotenv';
 import usuarioRoutes from "./routes/UsuarioRoutes.js";
 import rolesRoutes from "./routes/RolesRoutes.js"; 
 import proveedoresRoutes from "./routes/ProveedoresRoutes.js";
 import categoriasRoutes from "./routes/CategoriaRoutes.js";
 import clientesRoutes from "./routes/ClientesRoutes.js";
 import productosRoutes from "./routes/ProductosRoutes.js"
+import ventasRoutes from "./routes/VentasRoutes.js";
+
+
+// Cargar las variables de entorno desde el archivo .env
+dotenv.config();
+//dotenv.config({ path: './.env' });
 
 const app = express();
 
@@ -38,6 +45,9 @@ app.use('/api/clientes', clientesRoutes);
 
 // Usar las rutas de productos
 app.use('/api/productos', productosRoutes);
+
+// Usar las rutas de ventas
+app.use('/api/ventas', ventasRoutes);
 
 // Servir archivos estáticos de React
 const __dirname = path.resolve();

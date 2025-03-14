@@ -1,5 +1,6 @@
 import { Usuario } from "../models/Usuario.js";
 import bcrypt from "bcrypt";
+import generarJWT from "../helper/generarJWT.js";
 
 // Función para mostrar todos los usuarios
 const mostrarUsuarios = async (req, res) => {
@@ -76,6 +77,7 @@ const guardarUsuario = async (req, res) => {
   }
 };
 
+
 // Función para autenticar un usuario
 const autenticar = async (req, res) => {
   const { nombre_usuario, password } = req.body;
@@ -83,28 +85,42 @@ const autenticar = async (req, res) => {
   try {
     // Comprobar si el usuario existe
     const usuario = await Usuario.findOne({ where: { nombre_usuario } });
+
     if (!usuario) {
       return res.status(404).json({ mensaje: 'El Usuario no existe' });
     }
 
-    // Revisar el password
+    // Verificar si tiene una contraseña registrada
+    if (!usuario.password) {
+      return res.status(500).json({ mensaje: 'Error: el usuario no tiene contraseña registrada' });
+    }
+
     const passwordValido = await bcrypt.compare(password, usuario.password);
+    console.log("Resultado de la comparación:", passwordValido);
+
     if (!passwordValido) {
       return res.status(403).json({ mensaje: 'El Password es incorrecto' });
     }
 
-    // Autenticar
+    // Autenticar y generar token
+    const token = generarJWT(usuario.id);
+    if (!token) {
+      return res.status(500).json({ mensaje: 'Error al generar el token' });
+    }
+
     res.json({
       id: usuario.id,
       nombre_usuario: usuario.nombre_usuario,
       id_tipo_usuario: usuario.id_tipo_usuario,
-      // token: generarJWT(usuario.id), // Asumiendo que tienes una función para generar JWT
+      token
     });
+
   } catch (error) {
-    console.log(error);
+    console.error("Error en la autenticación:", error);
     res.status(500).json({ mensaje: 'Error al autenticar el usuario' });
   }
 };
+
 
 // Función para actualizar un usuario
 const actualizarUsuario = async (req, res) => {

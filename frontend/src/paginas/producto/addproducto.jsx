@@ -9,6 +9,7 @@ const Productoadd = () => {
   const [proveedores, setProveedores] = useState([]);
   const [selectedCategoria, setSelectedCategoria] = useState("");
   const [selectedProveedor, setSelectedProveedor] = useState("");
+  const [codigo, setCodigo] = useState("");
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState("");
@@ -48,6 +49,10 @@ const Productoadd = () => {
     setSelectedProveedor(event.target.value);
   };
 
+  const handleCodigoChange = (event) => {
+    setCodigo(event.target.value);
+  };
+
   const handleNombreChange = (event) => {
     setNombre(event.target.value);
   };
@@ -68,6 +73,7 @@ const Productoadd = () => {
     event.preventDefault();
     try {
       const nuevoProducto = {
+        codigo,
         nombre,
         descripcion,
         precio,
@@ -107,6 +113,10 @@ const Productoadd = () => {
 
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="codigo" className="font-bold">Codigo</label>
+            <input type="text" id="codigo" name="codigo" autoComplete="codigo" className="p-2 border border-gray-300 rounded w-full" value={codigo} onChange={handleCodigoChange} />
+          </div>
           <div className="flex flex-col space-y-2">
             <label htmlFor="nombre" className="font-bold">Nombre</label>
             <input type="text" id="nombre" name="nombre" autoComplete="name" className="p-2 border border-gray-300 rounded w-full" value={nombre} onChange={handleNombreChange} />

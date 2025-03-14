@@ -18,7 +18,10 @@ import Clientedit from "./paginas/clientes/clientesedit"
 import Producto from "./paginas/producto/producto"
 import Productoadd from "./paginas/producto/addproducto"
 import Editproducto from "./paginas/producto/editproducto"
-
+import Resgister from "./paginas/registro"
+import Venta from "./paginas/ventas/venta"
+import Addventa from "./paginas/ventas/addventa"
+import Editventa from "./paginas/ventas/editventa"
 
 function App() {
   return (
@@ -26,6 +29,7 @@ function App() {
       <Routes>
         <Route path="/" element={<AuthLayout />}>
           <Route index element={<Login />} />
+          <Route path="regist" element={<Resgister />} />
         </Route>
         <Route path="/principal" element={<LayoutPrincipal />}>
           <Route index element={<Principal />} />
@@ -44,6 +48,9 @@ function App() {
           <Route path="producto" element={<Producto />} />
           <Route path="producto/add" element={<Productoadd />} />
           <Route path="producto/edit/:id" element={<Editproducto />} />
+          <Route path="venta" element={<Venta />} />
+          <Route path="venta/add" element={<Addventa />} />
+          <Route path="venta/edit/:id" element={<Editventa />} />
         </Route>
       </Routes>
     </BrowserRouter>

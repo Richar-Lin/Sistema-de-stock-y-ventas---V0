@@ -2,6 +2,10 @@ import Sequelize from "sequelize";
 import db from "../config/db.js";
 
 export const Producto = db.define('productos', {
+    codigo: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
     nombre: {
         type: Sequelize.STRING,
         allowNull: false

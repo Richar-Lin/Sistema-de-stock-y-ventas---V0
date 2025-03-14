@@ -152,6 +152,7 @@ const Producto = () => {
                     <thead>
                         <tr className="bg-gray-200">
                             <th className="border border-black-200 px-4 py-2">Index</th>
+                            <th className="border border-black-200 px-4 py-2">Codigo</th>
                             <th className="border border-black-200 px-4 py-2">Nombre</th>
                             <th className="border border-black-200 px-4 py-2">Descripción</th>
                             <th className="border border-black-200 px-4 py-2">Precio</th>
@@ -165,6 +166,7 @@ const Producto = () => {
                         {filteredProductos.map((producto, index) => (
                             <tr key={producto.id} className="hover:bg-gray-100 transition duration-300 text-center">
                                 <td className="border border-black-200 px-4 py-2">{index + 1}</td>
+                                <td className="border border-black-200 px-4 py-2">{producto.codigo}</td>
                                 <td className="border border-black-200 px-4 py-2">{producto.nombre}</td>
                                 <td className="border border-black-200 px-4 py-2">{producto.descripcion}</td>
                                 <td className="border border-black-200 px-4 py-2">{producto.precio}</td>

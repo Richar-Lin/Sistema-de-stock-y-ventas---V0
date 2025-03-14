@@ -29,10 +29,11 @@ const mostrarProductoPorId = async (req, res) => {
 
 // Función para guardar un nuevo producto
 const guardarProducto = async (req, res) => {
-    const { nombre, descripcion, precio, stock, id_categoria, id_proveedor } = req.body;
+    const { codigo, nombre, descripcion, precio, stock, id_categoria, id_proveedor } = req.body;
 
     try {
         const nuevoProducto = await Producto.create({
+            codigo,
             nombre,
             descripcion,
             precio,
@@ -53,7 +54,7 @@ const guardarProducto = async (req, res) => {
 // Función para actualizar un producto
 const actualizarProducto = async (req, res) => {
     const { id } = req.params;
-    const { nombre, descripcion, precio, stock, id_categoria, id_proveedor } = req.body;
+    const { codigo, nombre, descripcion, precio, stock, id_categoria, id_proveedor } = req.body;
 
     try {
         const producto = await Producto.findByPk(id);
@@ -62,6 +63,7 @@ const actualizarProducto = async (req, res) => {
             return res.status(404).json({ mensaje: 'producto no encontrado' });
         }
 
+        producto.codigo = codigo
         producto.nombre = nombre;
         producto.descripcion = descripcion;
         producto.precio = precio;
