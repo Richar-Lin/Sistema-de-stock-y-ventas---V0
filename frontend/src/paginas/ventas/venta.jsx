@@ -12,7 +12,6 @@ const Venta = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [ventas, setVentas] = useState([]);
   const [clientes, setClientes] = useState([]);
-  const [productos, setProductos] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ventaToDelete, setVentaToDelete] = useState(null);
@@ -96,11 +95,6 @@ const Venta = () => {
     return cliente ? cliente.nombre : "Desconocido";
   };
 
-  const getProductoName = (productoId) => {
-    const producto = productos.find(producto => producto.id === productoId);
-    return producto ? producto.nombre : "Desconocido";
-  };
-
   const getUsuarioName = (usuarioID) => {
     const usuario = usuarios.find(usuario => usuario.id === usuarioID);
     return usuario ? usuario.nombre_usuario : "Desconocido";
@@ -176,9 +170,6 @@ const Venta = () => {
               <th className="border border-black-200 px-4 py-2">Index</th>
               <th className="border border-black-200 px-4 py-2">Codigo</th>
               <th className="border border-black-200 px-4 py-2">Cliente</th>
-              <th className="border border-black-200 px-4 py-2">Producto</th>
-              <th className="border border-black-200 px-4 py-2">Cantidad</th>
-              <th className="border border-black-200 px-4 py-2">IVA</th>
               <th className="border border-black-200 px-4 py-2">Total</th>
               <th className="border border-black-200 px-4 py-2">Fecha</th>
               <th className="border border-black-200 px-4 py-2">Usuario</th>
@@ -191,9 +182,6 @@ const Venta = () => {
                 <td className="border border-black-200 px-4 py-2">{index + 1}</td>
                 <td className="border border-black-200 px-4 py-2">{venta.codigo}</td>
                 <td className="border border-black-200 px-4 py-2">{venta.id_cliente ? getClienteName(venta.id_cliente) : "Sin cliente"}</td>
-                <td className="border border-black-200 px-4 py-2">{getProductoName(venta.id_producto)}</td>
-                <td className="border border-black-200 px-4 py-2">{venta.cantidad}</td>
-                <td className="border border-black-200 px-4 py-2">{venta.iva === 1 ? 'Sí' : 'No'}</td>
                 <td className="border border-black-200 px-4 py-2">{venta.total}</td>
                 <td className="border border-black-200 px-4 py-2"> {new Date(new Date(venta.fecha_venta).getTime() + new Date(venta.fecha_venta).getTimezoneOffset() * 60000).toLocaleDateString()}</td>
                 <td className="border border-black-200 px-4 py-2">{getUsuarioName(venta.id_usuario)}</td>

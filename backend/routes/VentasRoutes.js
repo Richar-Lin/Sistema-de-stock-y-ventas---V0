@@ -10,7 +10,7 @@ router.post('/', guardarventa);
 // Ruta para mostarar el ultimo id
 router.get('/ultimoId', ultimoId);
 
-router.get('/:id', obtenerVentasPorIdYCodigo);
+router.get('/d_venta/:id', obtenerVentasPorIdYCodigo);
 
 // Ruta para mostrar todos los Venta
 router.get('/', mostrarVentas);

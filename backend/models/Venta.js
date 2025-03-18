@@ -13,31 +13,12 @@ export const Venta = db.define('ventas', {
             key: 'id'
         }
     },
-    id_producto: {
-        type: Sequelize.STRING,
-        references: {
-            model: 'productos', // Nombre de la tabla relacionada
-            key: 'id'
-        }
-    },
-    cantidad: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-    },
-    iva: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-    },
-    precio: {
-        type: Sequelize.INTEGER,
+    fecha_venta: {
+        type: Sequelize.DATE,
         allowNull: false
     },
     total: {
         type: Sequelize.DECIMAL,
-        allowNull: false
-    },
-    fecha_venta: {
-        type: Sequelize.DATE,
         allowNull: false
     },
     id_usuario: {

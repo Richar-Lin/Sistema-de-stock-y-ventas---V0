@@ -11,7 +11,7 @@ const Addventa = () => {
   const [clientes, setClientes] = useState([]);
   const [selectedClientes, setSelectedClientes] = useState("");
   const [rows, setRows] = useState([
-    { codigo: "", nombre: "", cantidad: "", iva: false, precio: "", total: "" }
+    { codigo: "", nombre: "", cantidad: "", iva: false, precio: "", subtotal: "" }
   ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,6 +19,7 @@ const Addventa = () => {
   const [currentRowIndex, setCurrentRowIndex] = useState(null);
   const [codigoVenta, setCodigoVenta] = useState("");
   const [fechaVenta, setFechaVenta] = useState(new Date().toISOString().split('T')[0]); // Fecha actual
+  const [total, setTotal] = useState("");
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
@@ -70,14 +71,14 @@ const Addventa = () => {
       const cantidad = parseFloat(newRows[index].cantidad) || 0;
       const precio = parseFloat(newRows[index].precio) || 0;
       const iva = newRows[index].iva ? 1.10 : 1.00;
-      newRows[index].total = (cantidad * precio * iva).toFixed(2);
+      newRows[index].subtotal = (cantidad * precio * iva).toFixed(2);
     }
 
     setRows(newRows);
   };
 
   const handleAddRow = () => {
-    setRows([...rows, { codigo: "", nombre: "", cantidad: "", iva: false, precio: "", total: "" }]);
+    setRows([...rows, { codigo: "", nombre: "", cantidad: "", iva: false, precio: "", subtotal: "" }]);
   };
 
   const handleRemoveRow = (index) => {
@@ -118,15 +119,16 @@ const Addventa = () => {
       precio: producto.precio
     };
 
-    // Recalcular el total
+    // Recalcular el subtotal
     const cantidad = parseFloat(newRows[currentRowIndex].cantidad) || 0;
     const precio = parseFloat(producto.precio) || 0;
     const iva = newRows[currentRowIndex].iva ? 1.10 : 1.00;
-    newRows[currentRowIndex].total = (cantidad * precio * iva).toFixed(2);
+    newRows[currentRowIndex].subtotal = (cantidad * precio * iva).toFixed(2);
 
     setRows(newRows);
     closeModal();
   };
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -134,11 +136,12 @@ const Addventa = () => {
       const nuevaVenta = {
         codigoVenta,
         fechaVenta, // Añadir la fecha de venta
+        total,
+        id_cliente: selectedClientes,
         productos: rows.map(row => ({
           ...row,
           iva: row.iva ? 1 : 0 // Convertir iva a 1 si es true, 0 si es false
         })),
-        id_cliente: selectedClientes
       };
 
       await axios.post('/api/ventas', nuevaVenta)
@@ -149,6 +152,12 @@ const Addventa = () => {
       toast.error("Error al agregar la venta");
     }
   };
+
+  // Agrega este useEffect para calcular el total dinámicamente
+  useEffect(() => {
+    const nuevoTotal = rows.reduce((acc, row) => acc + parseFloat(row.subtotal || 0), 0);
+    setTotal(nuevoTotal.toFixed(2)); // Redondear a 2 decimales
+  }, [rows]);
 
   return (
     <div className="w-4/5 mx-auto p-10 border border-gray-300 rounded-lg bg-beige-100">
@@ -200,7 +209,7 @@ const Addventa = () => {
                 <th className="border border-black-200 px-4 py-2 w-16">Cantidad</th>
                 <th className="border border-black-200 px-4 py-2">IVA</th>
                 <th className="border border-black-200 px-4 py-2 w-30">Precio</th>
-                <th className="border border-black-200 px-4 py-2 w-30">Total</th>
+                <th className="border border-black-200 px-4 py-2 w-30">Subtotal</th>
                 <th className="border border-black-200 px-4 py-2 w-10">Búsqueda</th>
                 <th className="border border-black-200 px-4 py-2 w-10">Acciones</th>
               </tr>
@@ -231,7 +240,7 @@ const Addventa = () => {
                     <input type="number" id={`precio-${index}`} name="precio" autoComplete="price" className="p-1 border border-gray-300 w-20 text-center" value={row.precio} onChange={(e) => handleRowChange(index, 'precio', e.target.value)} />
                   </td>
                   <td className="border border-black-200 px-4 py-2">
-                    <input type="number" id={`total-${index}`} name="total" autoComplete="price" className="p-1 border border-gray-300 w-20 text-center" value={row.total} disabled />
+                    <input type="number" id={`subtotal-${index}`} name="subtotal" autoComplete="price" className="p-1 border border-gray-300 w-20 text-center" value={row.subtotal} disabled />
                   </td>
                   <td className="border border-black-200 px-4 py-2">
                     <div className="flex justify-center">
@@ -257,8 +266,9 @@ const Addventa = () => {
               ))}
             </tbody>
           </table>
-          <div>
-            total
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="Total" className="font-bold">Total de Venta</label>
+            <input type="number" id="Total" name="Total" className="p-2 border border-gray-300 rounded w-full" value={total} disabled />
           </div>
         </div>
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300">

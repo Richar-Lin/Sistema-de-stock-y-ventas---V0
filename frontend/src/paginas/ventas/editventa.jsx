@@ -9,6 +9,7 @@ import Modal from "react-modal";
 const Editventa = () => {
   const { id } = useParams();
   const [ventas, setVentas] = useState([]);
+  const [d_ventas, setD_ventas] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [productos, setProductos] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,12 +20,21 @@ const Editventa = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchVentas = async () => {
+    const fetchVenta = async () => {
       try {
         const response = await axios.get(`/api/ventas/${id}`);
         setVentas(response.data);
       } catch (error) {
-        console.error("Error al obtener las ventas:", error);
+        console.error("Error al obtener la venta:", error);
+      }
+    };
+
+    const fetchD_ventas = async () => {
+      try {
+        const response = await axios.get(`/api/ventas/d_venta/${id}`);
+        setD_ventas(response.data);
+      } catch (error) {
+        console.error("Error al obtener los detalles de la venta:", error);
       }
     };
 
@@ -46,56 +56,72 @@ const Editventa = () => {
       }
     };
 
-    fetchVentas();
+    fetchVenta();
+    fetchD_ventas();
     fetchClientes();
     fetchProductos();
   }, [id]);
 
   const handleInputChange = (index, field, value) => {
-    const newVentas = [...ventas];
-    newVentas[index][field] = value;
+    const newD_ventas = [...d_ventas];
+    newD_ventas[index][field] = value;
 
     if (field === 'cantidad' || field === 'precio' || field === 'iva') {
-      const cantidad = parseFloat(newVentas[index].cantidad) || 0;
-      const precio = parseFloat(newVentas[index].precio) || 0;
-      const iva = newVentas[index].iva ? 1.10 : 1.00;
-      newVentas[index].total = (cantidad * precio * iva).toFixed(2);
+      const cantidad = parseFloat(newD_ventas[index].cantidad) || 0;
+      const precio = parseFloat(newD_ventas[index].precio) || 0;
+      const iva = newD_ventas[index].iva ? 1.10 : 1.00;
+      newD_ventas[index].subtotal = (cantidad * precio * iva).toFixed(2);
     }
 
-    setVentas(newVentas);
+    setD_ventas(newD_ventas);
   };
 
+
+
   const handleSelectProduct = (producto) => {
-    const newVentas = [...ventas];
-    newVentas[currentRowIndex] = {
-      ...newVentas[currentRowIndex],
+    const newD_ventas = [...d_ventas];
+    newD_ventas[currentRowIndex] = {
+      ...newD_ventas[currentRowIndex],
       id_producto: producto.id,
       nombre: producto.nombre,
       precio: producto.precio
     };
 
-    // Recalcular el total
-    const cantidad = parseFloat(newVentas[currentRowIndex].cantidad) || 0;
+    // Recalcular el subtotal
+    const cantidad = parseFloat(newD_ventas[currentRowIndex].cantidad) || 0;
     const precio = parseFloat(producto.precio) || 0;
-    const iva = newVentas[currentRowIndex].iva ? 1.10 : 1.00;
-    newVentas[currentRowIndex].total = (cantidad * precio * iva).toFixed(2);
+    const iva = newD_ventas[currentRowIndex].iva ? 1.10 : 1.00;
+    newD_ventas[currentRowIndex].subtotal = (cantidad * precio * iva).toFixed(2);
 
-    setVentas(newVentas);
+    setD_ventas(newD_ventas);
     closeModal();
   };
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await Promise.all(ventas.map(async (venta) => {
-        await axios.put(`/api/ventas/${venta.id}`, venta);
-      }));
+      // Enviar ventas y d_ventas en un solo PUT
+      await axios.put(`/api/ventas/${id}`, {
+        ventas,
+        detalles: d_ventas, // Enviar los detalles como parte del cuerpo
+      });
+
       toast.success("Ventas actualizadas con éxito");
       navigate('/principal/venta');
     } catch (error) {
       console.error("Error al actualizar las ventas:", error);
       toast.error("Error al actualizar las ventas");
     }
+  };
+
+  const handleAddRow = () => {
+    setD_ventas([...d_ventas, { codigo: "", nombre: "", cantidad: "", iva: false, precio: "", subtotal: "" }]);
+  };
+
+  const handleRemoveRow = (index) => {
+    const newRows = d_ventas.filter((_, i) => i !== index);
+    setD_ventas(newRows);
   };
 
   const openModal = (index) => {
@@ -110,6 +136,15 @@ const Editventa = () => {
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
+
+  // Agrega este useEffect para calcular el total dinámicamente
+  useEffect(() => {
+    const nuevoTotal = d_ventas.reduce((acc, d_venta) => acc + parseFloat(d_venta.subtotal || 0), 0);
+    setVentas((prevVentas) => ({
+      ...prevVentas,
+      total: nuevoTotal.toFixed(2), // Redondear a 2 decimales
+    }));
+  }, [d_ventas]);
 
   const filteredProductos = productos.filter(producto =>
     producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -144,15 +179,15 @@ const Editventa = () => {
         <div className="flex flex-col space-y-4">
           <div className="flex flex-col space-y-2">
             <label htmlFor="codigoVenta" className="font-bold">Código de Venta</label>
-            <input type="number" id="codigoVenta" name="codigoVenta" className="p-2 border border-gray-300 rounded w-full" value={ventas[0]?.codigo || ''} disabled />
+            <input type="number" id="codigoVenta" name="codigoVenta" className="p-2 border border-gray-300 rounded w-full" value={ventas.codigo || ''} disabled />
           </div>
           <div className="flex flex-col space-y-2">
             <label htmlFor="fechaVenta" className="font-bold">Fecha de Venta</label>
-            <input type="date" id="fechaVenta" name="fechaVenta" className="p-2 border border-gray-300 rounded w-full" value={ventas[0]?.fecha_venta ? new Date(ventas[0].fecha_venta).toISOString().split('T')[0] : ''} onChange={(e) => handleInputChange(0, 'fecha_venta', e.target.value)} />
+            <input type="date" id="fechaVenta" name="fechaVenta" className="p-2 border border-gray-300 rounded w-full" value={ventas.fecha_venta ? new Date(ventas.fecha_venta).toISOString().split('T')[0] : ''} onChange={(e) => setVentas({ ...ventas, fecha_venta: e.target.value })} />
           </div>
           <div className="flex flex-col space-y-2">
             <label htmlFor="cliente" className="font-bold">Cliente</label>
-            <select id="cliente" name="cliente" className="p-2 border border-gray-300 rounded w-full" value={ventas[0]?.id_cliente || ''} onChange={(e) => handleInputChange(0, 'id_cliente', e.target.value)}>
+            <select id="cliente" name="cliente" className="p-2 border border-gray-300 rounded w-full" value={ventas.id_cliente || ''} onChange={(e) => setVentas({ ...ventas, id_cliente: e.target.value })}>
               <option value="">Seleccione un cliente</option>
               {clientes.map((cliente) => (
                 <option key={cliente.id} value={cliente.id}>{cliente.nombre}</option>
@@ -170,39 +205,25 @@ const Editventa = () => {
               <th className="border border-black-200 px-4 py-2 w-16">Cantidad</th>
               <th className="border border-black-200 px-4 py-2">IVA</th>
               <th className="border border-black-200 px-4 py-2 w-30">Precio</th>
-              <th className="border border-black-200 px-4 py-2 w-30">Total</th>
+              <th className="border border-black-200 px-4 py-2 w-30">Subtotal</th>
               <th className="border border-black-200 px-4 py-2 w-10">Búsqueda</th>
               <th className="border border-black-200 px-4 py-2 w-10">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {ventas.map((venta, index) => (
-              <tr key={venta.id}>
+            {d_ventas.map((detalle, index) => (
+              <tr key={detalle.id}>
+                <td className="border border-black-200 px-4 py-2 text-center">{index + 1}</td>
+                <td className="border border-black-200 px-4 py-2">{productos.find(producto => producto.id === detalle.id_producto)?.codigo || ''}</td>
+                <td className="border border-black-200 px-4 py-2">{productos.find(producto => producto.id === detalle.id_producto)?.nombre || ''}</td>
                 <td className="border border-black-200 px-4 py-2">
-                  <div className="flex justify-center">
-                    {index + 1}
-                  </div>
+                  <input type="number" className="p-1 border border-gray-300 w-16 text-center" value={detalle.cantidad} onChange={(e) => handleInputChange(index, 'cantidad', e.target.value)} />
                 </td>
-                <td className="border border-black-200 px-4 py-2">
-                  <input type="text" id={`producto-${index}`} name="producto" className="p-2 border border-gray-300 rounded w-full" value={productos.find(producto => producto.id === venta.id_producto)?.codigo || ''} disabled />
+                <td className="border border-black-200 px-4 py-2 text-center">
+                  <input type="checkbox" checked={detalle.iva} onChange={(e) => handleInputChange(index, 'iva', e.target.checked)} />
                 </td>
-                <td className="border border-black-200 px-4 py-2">
-                  <input type="text" id={`producto-${index}`} name="producto" className="p-2 border border-gray-300 rounded w-full" value={productos.find(producto => producto.id === venta.id_producto)?.nombre || ''} disabled />
-                </td>
-                <td className="border border-black-200 px-4 py-2">
-                  <input type="number" id={`cantidad-${index}`} name="cantidad" className="p-1 border border-gray-300 w-16 text-center" value={venta.cantidad} onChange={(e) => handleInputChange(index, 'cantidad', e.target.value)} />
-                </td>
-                <td className="border border-black-200 px-4 py-2">
-                  <div className="flex justify-center">
-                    <input type="checkbox" id={`iva-${index}`} name="iva" className="p-1 border border-gray-300 rounded" checked={venta.iva} onChange={(e) => handleInputChange(index, 'iva', e.target.checked)} />
-                  </div>
-                </td>
-                <td className="border border-black-200 px-4 py-2">
-                  <input type="number" id={`precio-${index}`} name="precio" autoComplete="price" className="p-1 border border-gray-300 w-20 text-center" value={venta.precio} onChange={(e) => handleInputChange(index, 'precio', e.target.value)} />
-                </td>
-                <td className="border border-black-200 px-4 py-2">
-                  <input type="number" id={`total-${index}`} name="total" autoComplete="price" className="p-1 border border-gray-300 w-20 text-center" value={venta.total} disabled />
-                </td>
+                <td className="border border-black-200 px-4 py-2 text-center">{detalle.precio}</td>
+                <td className="border border-black-200 px-4 py-2 text-center">{detalle.subtotal}</td>
                 <td className="border border-black-200 px-4 py-2">
                   <div className="flex justify-center">
                     <button type="button" onClick={() => openModal(index)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300">
@@ -210,9 +231,12 @@ const Editventa = () => {
                     </button>
                   </div>
                 </td>
-                <td className="border border-black-200 px-4 py-2">
-                  <div className="flex justify-center">
-                    <button type="button" onClick={() => handleDeleteRow(index)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300">
+                <td className="border border-black-200 px-4 py-2 w-40">
+                  <div className="flex justify-between">
+                    <button type="button" onClick={handleAddRow} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300">
+                      <Plus size={20} />
+                    </button>
+                    <button type="button" onClick={() => handleRemoveRow(index)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300">
                       <Trash size={20} />
                     </button>
                   </div>
@@ -221,6 +245,10 @@ const Editventa = () => {
             ))}
           </tbody>
         </table>
+        <div className="flex flex-col space-y-2">
+          <label htmlFor="Total" className="font-bold">Total de Venta</label>
+          <input type="number" id="Total" name="Total" className="p-2 border border-gray-300 rounded w-full" value={ventas.total || 0} disabled />
+        </div>
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300">
           Guardar
         </button>
