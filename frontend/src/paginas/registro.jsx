@@ -17,7 +17,6 @@ const Resgister = () => {
         const fetchRoles = async () => {
             try {
                 const response = await axios.get('/api/roles');
-                console.log(response.data); // Verifica la estructura de los datos aquí
                 setRoles(response.data);
             } catch (error) {
                 console.error("Error al obtener los roles:", error);

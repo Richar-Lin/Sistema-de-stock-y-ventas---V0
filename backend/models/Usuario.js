@@ -27,11 +27,5 @@ export const Usuario = db.define('usuarios', {
     }
 }, {
     timestamps: false,// Evita agregar createdAt y updatedAt automáticamente
-    hooks: {
-        beforeCreate: async (user) => {
-            const salt = await bcrypt.genSalt(10);
-            user.password = await bcrypt.hash(user.password, salt);
-        }
-    }
 })
 

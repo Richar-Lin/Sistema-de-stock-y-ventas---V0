@@ -134,8 +134,9 @@ const Addventa = () => {
     event.preventDefault();
     try {
       const nuevaVenta = {
+        usuario: localStorage.getItem('id'),
         codigoVenta,
-        fechaVenta, // Añadir la fecha de venta
+        fechaVenta, 
         total,
         id_cliente: selectedClientes,
         productos: rows.map(row => ({

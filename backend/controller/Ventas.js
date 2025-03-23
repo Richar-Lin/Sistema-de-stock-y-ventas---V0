@@ -52,8 +52,9 @@ const ultimoId = async (req, res) => {
         const venta = await Venta.findOne({
             order: [['id', 'DESC']]
         });
+        // Si no hay ventas, devolver un valor predeterminado
         if (!venta) {
-            return res.status(404).json({ message: "No se encontraron ventas" });
+            return res.json({ ultimoCodigo: 0 });
         }
         res.json({ ultimoCodigo: venta.codigo });
     } catch (error) {
@@ -63,7 +64,7 @@ const ultimoId = async (req, res) => {
 
 // Función para guardar un nuevo venta
 const guardarventa = async (req, res) => {
-    const { codigoVenta, id_cliente, productos, fechaVenta, total } = req.body;
+    const { codigoVenta, id_cliente, productos, fechaVenta, total, usuario } = req.body;
 
     // Validar los datos entrantes
     if (!codigoVenta || !productos || productos.length === 0) {
@@ -77,7 +78,7 @@ const guardarventa = async (req, res) => {
             id_cliente: id_cliente || null, // Permitir valores null para el cliente
             fecha_venta: fechaVenta,
             total: total,
-            id_usuario: 8, // Usuario que realiza la venta
+            id_usuario: usuario, // Usuario que realiza la venta
             estado: 1 // Venta activa por defecto
         });
 
@@ -88,6 +89,15 @@ const guardarventa = async (req, res) => {
             if (!productoEncontrado) {
                 throw new Error(`Producto con código ${producto.codigo} no encontrado`);
             }
+
+            // Validar stock
+            if (productoEncontrado.stock < producto.cantidad) {
+                throw new Error(`Stock insuficiente para el producto con código ${producto.codigo}`);
+            }
+
+            // Reducir la cantidad del producto
+            productoEncontrado.stock -= producto.cantidad;
+            await productoEncontrado.save(); // Guardar los cambios en la base de datos
 
             // Crear el detalle de la venta
             return await d_venta.create({
@@ -114,6 +124,7 @@ const actualizarVenta = async (req, res) => {
     const { id } = req.params;
     const { ventas, detalles } = req.body;
 
+
     try {
         // Actualizar la información general de la venta
         const venta = await Venta.findByPk(id);
@@ -134,8 +145,12 @@ const actualizarVenta = async (req, res) => {
         const idsDetallesEnviados = detalles.map((detalle) => detalle.id).filter((id) => id); // Filtrar solo los IDs definidos
         const detallesEliminados = detallesExistentes.filter((detalle) => !idsDetallesEnviados.includes(detalle.id));
 
+
         // Cambiar el estado a 0 para los detalles eliminados
         await Promise.all(detallesEliminados.map(async (detalle) => {
+            const producto = await Producto.findByPk(detalle.id_producto);
+            producto.stock += detalle.cantidad; // Aumentar la cantidad del producto
+            await producto.save(); // Guardar los cambios en la base de datos
             detalle.estado = 0;
             await detalle.save();
         }));
@@ -147,6 +162,39 @@ const actualizarVenta = async (req, res) => {
                     // Actualizar detalle existente
                     const detalleExistente = await d_venta.findByPk(detalle.id);
                     if (detalleExistente) {
+                        // Obtener el producto anterior
+                        const productoAnterior = await Producto.findByPk(detalleExistente.id_producto);
+
+                        // Revertir el stock del producto anterior
+                        if (productoAnterior) {
+                            productoAnterior.stock += detalleExistente.cantidad; // Devolver el stock anterior
+                            await productoAnterior.save();
+                        }
+
+                        // Si el producto cambia, actualizar el stock del nuevo producto
+                        if (detalleExistente.id_producto !== detalle.id_producto) {
+                            const productoNuevo = await Producto.findByPk(detalle.id_producto);
+                            if (productoNuevo) {
+                                if (productoNuevo.cantidad < detalle.cantidad) {
+                                    throw new Error(`Stock insuficiente para el producto con ID ${detalle.id_producto}`);
+                                }
+                                productoNuevo.cantidad -= detalle.cantidad; // Reducir el stock del nuevo producto
+                                await productoNuevo.save();
+                            }
+                        } else {
+                            // Si el producto no cambia, ajustar el stock según la nueva cantidad
+                            const productoActual = await Producto.findByPk(detalle.id_producto);
+                            if (productoActual) {
+                                const diferenciaCantidad = detalle.cantidad - detalleExistente.cantidad;
+                                if (productoActual.sotck < diferenciaCantidad) {
+                                    throw new Error(`Stock insuficiente para el producto con ID ${detalle.id_producto}`);
+                                }
+                                productoActual.stock -= detalle.cantidad; // Ajustar el stock
+                                await productoActual.save();
+                            }
+                        }
+
+                        // Actualizar el detalle existente
                         detalleExistente.id_producto = detalle.id_producto;
                         detalleExistente.cantidad = detalle.cantidad;
                         detalleExistente.precio = detalle.precio;
@@ -156,6 +204,15 @@ const actualizarVenta = async (req, res) => {
                     }
                 } else {
                     // Crear nuevo detalle
+                    const productoNuevo = await Producto.findByPk(detalle.id_producto);
+                    if (productoNuevo) {
+                        if (productoNuevo.cantidad < detalle.cantidad) {
+                            throw new Error(`Stock insuficiente para el producto con ID ${detalle.id_producto}`);
+                        }
+                        productoNuevo.stock -= detalle.cantidad; // Reducir el stock del nuevo producto
+                        await productoNuevo.save();
+                    }
+
                     await d_venta.create({
                         id_venta: venta.id,
                         id_producto: detalle.id_producto,
@@ -176,7 +233,6 @@ const actualizarVenta = async (req, res) => {
     }
 };
 
-
 // Función para eliminar un venta (eliminación lógica)
 const eliminarVenta = async (req, res) => {
     const { id } = req.params;
@@ -184,12 +240,29 @@ const eliminarVenta = async (req, res) => {
     try {
         const venta = await Venta.findByPk(id);
 
+        // Obtener los detalles existentes de la base de datos
+        const detalles = await d_venta.findAll({ where: { id_venta: id, estado: 1 } });
+
+
         if (!venta || venta.estado === 0) {
             return res.status(404).json({ mensaje: 'venta no encontrado' });
         }
 
+
+        if (!detalles || detalles.estado === 0) {
+            return res.status(404).json({ mensaje: 'd_venta no encontrado' });
+        }
+
+        Promise.all(detalles.map(async (detalle) => {
+            const producto = await Producto.findByPk(detalle.id_producto);
+            producto.cantidad += detalle.cantidad; // Aumentar la cantidad del producto
+            await producto.save(); // Guardar los cambios en la base de datos
+            detalle.estado = 0; // Cambiar el estado a 0 para desactivar el detalle
+            await detalle.save();
+        }));
         venta.estado = 0; // Cambiar el estado a 0 para desactivar el venta
         await venta.save();
+
         res.json({ mensaje: 'venta eliminado con éxito' });
     } catch (error) {
         console.error("Error al eliminar el venta:", error);

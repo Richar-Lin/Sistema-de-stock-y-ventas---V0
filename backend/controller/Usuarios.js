@@ -84,12 +84,14 @@ const autenticar = async (req, res) => {
 
   try {
     // Comprobar si el usuario existe
-    const usuario = await Usuario.findOne({ where: { nombre_usuario } });
+    const usuario = await Usuario.findOne({ where: { nombre_usuario: nombre_usuario } });
+
 
     if (!usuario) {
       return res.status(404).json({ mensaje: 'El Usuario no existe' });
     }
 
+    console.log("Usuario encontrado:", usuario);
     // Verificar si tiene una contraseña registrada
     if (!usuario.password) {
       return res.status(500).json({ mensaje: 'Error: el usuario no tiene contraseña registrada' });
@@ -112,7 +114,8 @@ const autenticar = async (req, res) => {
       id: usuario.id,
       nombre_usuario: usuario.nombre_usuario,
       id_tipo_usuario: usuario.id_tipo_usuario,
-      token
+      token,
+      id: usuario.id,
     });
 
   } catch (error) {

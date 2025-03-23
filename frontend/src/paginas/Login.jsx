@@ -10,26 +10,21 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
-  };
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
 
-
-      const response = await axios.post('/api/usuarios/login', {
+      const credenciales = {
         nombre_usuario: username,
         password: password
-      });
+      }
+
+      const response = await axios.post('/api/usuarios/login', credenciales);
 
       // Guardar el token en el almacenamiento local
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('id', response.data.id);
 
       toast.success("Inicio de sesión exitoso");
       navigate('/principal');
@@ -37,6 +32,14 @@ const Login = () => {
       console.error("Error al iniciar sesión:", error);
       toast.error("Usuario o contraseña incorrectos");
     }
+  };
+
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
   };
 
   return (

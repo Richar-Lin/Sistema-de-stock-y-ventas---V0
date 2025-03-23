@@ -35,20 +35,6 @@ const Venta = () => {
     };
 
     // Función para obtener los productos desde la API usando axios
-    const fetchProductos = async () => {
-      try {
-        const response = await axios.get('/api/productos');
-        if (Array.isArray(response.data)) {
-          setProductos(response.data);
-        } else {
-          console.error("La respuesta de la API no es un array:", response.data);
-        }
-      } catch (error) {
-        console.error("Error al obtener los productos:", error);
-      }
-    };
-
-    // Función para obtener los productos desde la API usando axios
     const fetchUsuarios = async () => {
       try {
         const response = await axios.get('/api/usuarios');
@@ -79,7 +65,6 @@ const Venta = () => {
     fetchUsuarios();
     fetchVentas();
     fetchClientes();
-    fetchProductos();
   }, []);
 
   const handleSearch = (event) => {
@@ -164,7 +149,7 @@ const Venta = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="border-collapse md:border-separate border border-blue-200 w-full bg-white shadow-lg">
+        <table className="border-collapse md:border-separate border border-blue-200 w-full bg-white shadow-lg ">
           <thead>
             <tr className="bg-gray-200">
               <th className="border border-black-200 px-4 py-2">Index</th>
