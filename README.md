@@ -25,6 +25,14 @@ npm install
 cd ../backend
 npm install
 
+Run
+# For frontend
+cd frontend
+npm run dev
+
+# For backend
+cd ../backend
+npm run dev
 
  Screenshots
  ![image](https://github.com/user-attachments/assets/04c94c8c-dd8b-4f23-b368-803eb0065317)
