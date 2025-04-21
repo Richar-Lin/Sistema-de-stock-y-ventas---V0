@@ -1,40 +1,42 @@
-Stock and Sales Management System – V1
-A full-stack web application designed to manage inventory, sales. Built with React and Tailwind CSS on the frontend, Node.js and Express on the backend, and MySQL for data storage
+# Stock and Sales Management System – V1
 
-Features
-Product Management: Add, update, and delete products with ease.
-Sales Tracking: Record and monitor sales transactions.
-Authentication: Secure login system for users.
-Responsive Design: Optimized for various devices using Tailwind CSS.​
+A full-stack web application designed to manage inventory and sales. This project uses modern technologies to provide an efficient, secure, and responsive user experience.
 
-Technologies Used
-Frontend: React, Tailwind CSS
-Backend: Node.js, Express
-Database: MySQL
-Tools: phpMyAdmin for database management
+---
 
-Installation
-Clone the repository: git clone https://github.com/Richar-Lin/Sistema-de-stock-y-ventas---V1.git
-Navigate to the project directory: cd Sistema-de-stock-y-ventas---V1
-Install dependencies for both frontend and backend:
-# For frontend
-cd frontend
-npm install
+## 🚀 **Features**
 
-# For backend
-cd ../backend
-npm install
+- **Product Management**: Easily add, update, and delete products.
+- **Sales Tracking**: Record and monitor sales transactions.
+- **Authentication**: Secure login system for users.
+- **Responsive Design**: Optimized for devices of various sizes using Tailwind CSS.
 
-Run
-# For frontend
-cd frontend
-npm run dev
+---
 
-# For backend
-cd ../backend
-npm run dev
+## 🛠️ **Technologies Used**
 
- Screenshots
+### **Frontend**
+- React
+- Tailwind CSS
+
+### **Backend**
+- Node.js
+- Express.js
+
+### **Database**
+- MySQL
+- phpMyAdmin (for database management)
+
+---
+
+## 📦 **Installation**
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Richar-Lin/Sistema-de-stock-y-ventas---V1.git
+   
+
+ ## 📸 **Screenshots**
  ![image](https://github.com/user-attachments/assets/04c94c8c-dd8b-4f23-b368-803eb0065317)
 
  
