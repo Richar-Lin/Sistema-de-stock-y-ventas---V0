@@ -6,11 +6,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Search, Plus, Trash } from "lucide-react";
 import Modal from "react-modal";
 
-const Editventa = () => {
+const EditCompra = () => {
   const { id } = useParams();
-  const [ventas, setVentas] = useState([]);
-  const [d_ventas, setD_ventas] = useState([]);
-  const [clientes, setClientes] = useState([]);
+  const [compra, setCompra] = useState([]);
+  const [d_compras, setD_compras] = useState([]);
+  const [proveedores, setProveedores] = useState([]);
   const [productos, setProductos] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,30 +20,30 @@ const Editventa = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchVenta = async () => {
+    const fetchCompra = async () => {
       try {
-        const response = await axios.get(`/api/ventas/${id}`);
-        setVentas(response.data);
+        const response = await axios.get(`/api/compras/${id}`);
+        setCompra(response.data);
       } catch (error) {
-        console.error("Error al obtener la venta:", error);
+        console.error("Error al obtener la compra:", error);
       }
     };
 
-    const fetchD_ventas = async () => {
+    const fetchD_compras = async () => {
       try {
-        const response = await axios.get(`/api/ventas/d_venta/${id}`);
-        setD_ventas(response.data);
+        const response = await axios.get(`/api/compras/d_compra/${id}`);
+        setD_compras(response.data);
       } catch (error) {
-        console.error("Error al obtener los detalles de la venta:", error);
+        console.error("Error al obtener los detalles de la compra:", error);
       }
     };
 
-    const fetchClientes = async () => {
+    const fetchProveedores = async () => {
       try {
-        const response = await axios.get('/api/clientes');
-        setClientes(response.data);
+        const response = await axios.get('/api/proveedores');
+        setProveedores(response.data);
       } catch (error) {
-        console.error("Error al obtener los clientes:", error);
+        console.error("Error al obtener los proveedores:", error);
       }
     };
 
@@ -56,72 +56,69 @@ const Editventa = () => {
       }
     };
 
-    fetchVenta();
-    fetchD_ventas();
-    fetchClientes();
+    fetchCompra();
+    fetchD_compras();
+    fetchProveedores();
     fetchProductos();
   }, [id]);
 
   const handleInputChange = (index, field, value) => {
-    const newD_ventas = [...d_ventas];
-    newD_ventas[index][field] = value;
+    const newD_compras = [...d_compras];
+    newD_compras[index][field] = value;
 
     if (field === 'cantidad' || field === 'precio' || field === 'iva') {
-      const cantidad = parseFloat(newD_ventas[index].cantidad) || 0;
-      const precio = parseFloat(newD_ventas[index].precio) || 0;
-      const iva = newD_ventas[index].iva ? 1.10 : 1.00;
-      newD_ventas[index].subtotal = (cantidad * precio * iva).toFixed(2);
+      const cantidad = parseFloat(newD_compras[index].cantidad) || 0;
+      const precio = parseFloat(newD_compras[index].precio) || 0;
+      const iva = newD_compras[index].iva ? 1.10 : 1.00;
+      newD_compras[index].subtotal = (cantidad * precio * iva).toFixed(2);
     }
 
-    setD_ventas(newD_ventas);
+    setD_compras(newD_compras);
   };
 
-
-
   const handleSelectProduct = (producto) => {
-    const newD_ventas = [...d_ventas];
-    newD_ventas[currentRowIndex] = {
-      ...newD_ventas[currentRowIndex],
+    const newD_compras = [...d_compras];
+    newD_compras[currentRowIndex] = {
+      ...newD_compras[currentRowIndex],
       id_producto: producto.id,
       nombre: producto.nombre,
       precio: producto.precio
     };
 
     // Recalcular el subtotal
-    const cantidad = parseFloat(newD_ventas[currentRowIndex].cantidad) || 0;
+    const cantidad = parseFloat(newD_compras[currentRowIndex].cantidad) || 0;
     const precio = parseFloat(producto.precio) || 0;
-    const iva = newD_ventas[currentRowIndex].iva ? 1.10 : 1.00;
-    newD_ventas[currentRowIndex].subtotal = (cantidad * precio * iva).toFixed(2);
+    const iva = newD_compras[currentRowIndex].iva ? 1.10 : 1.00;
+    newD_compras[currentRowIndex].subtotal = (cantidad * precio * iva).toFixed(2);
 
-    setD_ventas(newD_ventas);
+    setD_compras(newD_compras);
     closeModal();
   };
-
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      // Enviar ventas y d_ventas en un solo PUT
-      await axios.put(`/api/ventas/${id}`, {
-        ventas,
-        detalles: d_ventas, // Enviar los detalles como parte del cuerpo
+      // Enviar compra y d_compras en un solo PUT
+      await axios.put(`/api/compras/${id}`, {
+        compra,
+        detalles: d_compras, // Enviar los detalles como parte del cuerpo
       });
 
-      toast.success("Ventas actualizadas con éxito");
-      navigate('/principal/venta');
+      toast.success("Compra actualizada con éxito");
+      navigate('/principal/compra');
     } catch (error) {
-      console.error("Error al actualizar las ventas:", error);
-      toast.error("Error al actualizar las ventas");
+      console.error("Error al actualizar la compra:", error);
+      toast.error("Error al actualizar la compra");
     }
   };
 
   const handleAddRow = () => {
-    setD_ventas([...d_ventas, { codigo: "", nombre: "", cantidad: "", iva: false, precio: "", subtotal: "" }]);
+    setD_compras([...d_compras, { codigo: "", nombre: "", cantidad: "", iva: false, precio: "", subtotal: "" }]);
   };
 
   const handleRemoveRow = (index) => {
-    const newRows = d_ventas.filter((_, i) => i !== index);
-    setD_ventas(newRows);
+    const newRows = d_compras.filter((_, i) => i !== index);
+    setD_compras(newRows);
   };
 
   const openModal = (index) => {
@@ -137,14 +134,14 @@ const Editventa = () => {
     setSearchTerm(event.target.value);
   };
 
-  // Agrega este useEffect para calcular el total dinámicamente
+  // Calcular el total dinámicamente
   useEffect(() => {
-    const nuevoTotal = d_ventas.reduce((acc, d_venta) => acc + parseFloat(d_venta.subtotal || 0), 0);
-    setVentas((prevVentas) => ({
-      ...prevVentas,
+    const nuevoTotal = d_compras.reduce((acc, d_compra) => acc + parseFloat(d_compra.subtotal || 0), 0);
+    setCompra((prevCompra) => ({
+      ...prevCompra,
       total: nuevoTotal.toFixed(2), // Redondear a 2 decimales
     }));
-  }, [d_ventas]);
+  }, [d_compras]);
 
   const filteredProductos = productos.filter(producto =>
     producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -165,37 +162,36 @@ const Editventa = () => {
           PRINCIPAL
         </Link>
         {" / "}
-        <Link to="/principal/venta" className="text-blue-500 hover:underline font-bold">
-          VENTA
+        <Link to="/principal/compra" className="text-blue-500 hover:underline font-bold">
+          COMPRA
         </Link>
         {" / "}
-        <Link to="/principal/venta/edit" className="text-blue-500 hover:underline font-bold">
+        <Link to="/principal/compra/edit" className="text-blue-500 hover:underline font-bold">
           EDITAR
         </Link>
       </div>
       <ToastContainer />
-      <h1 className="text-3xl font-bold mb-6">Editar Ventas</h1>
+      <h1 className="text-3xl font-bold mb-6">Editar Compra</h1>
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <div className="flex flex-col space-y-4">
           <div className="flex flex-col space-y-2">
-            <label htmlFor="codigoVenta" className="font-bold">Código de Venta</label>
-            <input type="number" id="codigoVenta" name="codigoVenta" className="p-2 border border-gray-300 rounded w-full" value={ventas.codigo || ''} disabled />
+            <label htmlFor="codigoCompra" className="font-bold">Código de Compra</label>
+            <input type="number" id="codigoCompra" name="codigoCompra" className="p-2 border border-gray-300 rounded w-full" value={compra.codigo || ''} disabled />
           </div>
           <div className="flex flex-col space-y-2">
-            <label htmlFor="fechaVenta" className="font-bold">Fecha de Venta</label>
-            <input type="date" id="fechaVenta" name="fechaVenta" className="p-2 border border-gray-300 rounded w-full" value={ventas.fecha_venta ? new Date(ventas.fecha_venta).toISOString().split('T')[0] : ''} onChange={(e) => setVentas({ ...ventas, fecha_venta: e.target.value })} />
+            <label htmlFor="fechaCompra" className="font-bold">Fecha de Compra</label>
+            <input type="date" id="fechaCompra" name="fechaCompra" className="p-2 border border-gray-300 rounded w-full" value={compra.fecha ? new Date(compra.fecha).toISOString().split('T')[0] : ''} onChange={(e) => setCompra({ ...compra, fecha: e.target.value })} />
           </div>
           <div className="flex flex-col space-y-2">
-            <label htmlFor="cliente" className="font-bold">Cliente</label>
-            <select id="cliente" name="cliente" className="p-2 border border-gray-300 rounded w-full" value={ventas.id_cliente || ''} onChange={(e) => setVentas({ ...ventas, id_cliente: e.target.value })}>
-              <option value="">Seleccione un cliente</option>
-              {clientes.map((cliente) => (
-                <option key={cliente.id} value={cliente.id}>{cliente.nombre}</option>
+            <label htmlFor="proveedor" className="font-bold">Proveedor</label>
+            <select id="proveedor" name="proveedor" className="p-2 border border-gray-300 rounded w-full" value={compra.id_proveedor || ''} onChange={(e) => setCompra({ ...compra, id_proveedor: e.target.value })}>
+              <option value="">Seleccione un proveedor</option>
+              {proveedores.map((proveedor) => (
+                <option key={proveedor.id} value={proveedor.id}>{proveedor.nombre}</option>
               ))}
             </select>
           </div>
         </div>
-
 
         <div className="overflow-x-auto">
           <table className="border-collapse md:border-separate border border-blue-200 w-full bg-white shadow-lg">
@@ -203,7 +199,7 @@ const Editventa = () => {
               <tr className="bg-gray-200">
                 <th className="border border-black-200 px-4 py-2 w-10">Index</th>
                 <th className="border border-black-200 px-4 py-2 w-30">Código</th>
-                <th className="border border-black-200 px-4 py-2 " >Producto</th>
+                <th className="border border-black-200 px-4 py-2">Producto</th>
                 <th className="border border-black-200 px-4 py-2 w-16">Cantidad</th>
                 <th className="border border-black-200 px-4 py-2">IVA</th>
                 <th className="border border-black-200 px-4 py-2 w-30">Precio</th>
@@ -213,7 +209,7 @@ const Editventa = () => {
               </tr>
             </thead>
             <tbody>
-              {d_ventas.map((detalle, index) => (
+              {d_compras.map((detalle, index) => (
                 <tr key={detalle.id}>
                   <td className="border border-black-200 px-4 py-2 text-center">{index + 1}</td>
                   <td className="border border-black-200 px-4 py-2">{productos.find(producto => producto.id === detalle.id_producto)?.codigo || ''}</td>
@@ -250,8 +246,8 @@ const Editventa = () => {
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="Total" className="font-bold">Total de Venta</label>
-          <input type="number" id="Total" name="Total" className="p-2 border border-gray-300 rounded w-full" value={ventas.total || 0} disabled />
+          <label htmlFor="Total" className="font-bold">Total de Compra</label>
+          <input type="number" id="Total" name="Total" className="p-2 border border-gray-300 rounded w-full" value={compra.total || 0} disabled />
         </div>
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300">
           Guardar
@@ -321,4 +317,4 @@ const Editventa = () => {
   );
 };
 
-export default Editventa;
+export default EditCompra;

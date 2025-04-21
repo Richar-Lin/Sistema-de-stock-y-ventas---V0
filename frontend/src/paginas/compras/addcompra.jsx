@@ -6,10 +6,10 @@ import Modal from "react-modal";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-const Addventa = () => {
+const AddCompra = () => {
   const [productos, setProductos] = useState([]);
-  const [clientes, setClientes] = useState([]);
-  const [selectedClientes, setSelectedClientes] = useState("");
+  const [proveedores, setProveedores] = useState([]);
+  const [selectedProveedor, setSelectedProveedor] = useState("");
   const [rows, setRows] = useState([
     { codigo: "", nombre: "", cantidad: "", iva: false, precio: "", subtotal: "" }
   ]);
@@ -17,8 +17,8 @@ const Addventa = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [currentRowIndex, setCurrentRowIndex] = useState(null);
-  const [codigoVenta, setCodigoVenta] = useState("");
-  const [fechaVenta, setFechaVenta] = useState(new Date().toISOString().split('T')[0]); // Fecha actual
+  const [codigoCompra, setCodigoCompra] = useState("");
+  const [fechaCompra, setFechaCompra] = useState(new Date().toISOString().split('T')[0]); // Fecha actual
   const [total, setTotal] = useState("");
   const itemsPerPage = 10;
   const navigate = useNavigate();
@@ -30,37 +30,37 @@ const Addventa = () => {
         const response = await axios.get('/api/productos');
         setProductos(response.data);
       } catch (error) {
-        console.error("Error al obtener las productos:", error);
+        console.error("Error al obtener los productos:", error);
       }
     };
 
-    // Obtener los clientes desde el backend
-    const fetchClientes = async () => {
+    // Obtener los proveedores desde el backend
+    const fetchProveedores = async () => {
       try {
-        const response = await axios.get('/api/clientes');
-        setClientes(response.data);
+        const response = await axios.get('/api/proveedores');
+        setProveedores(response.data);
       } catch (error) {
-        console.error("Error al obtener los clientes:", error);
+        console.error("Error al obtener los proveedores:", error);
       }
     };
 
-    // Obtener el último código de venta desde el backend
-    const fetchUltimoCodigoVenta = async () => {
+    // Obtener el último código de compra desde el backend
+    const fetchUltimoCodigoCompra = async () => {
       try {
-        const response = await axios.get('/api/ventas/ultimoId');
-        setCodigoVenta(response.data.ultimoCodigo + 1);
+        const response = await axios.get('/api/compras/ultimoId');
+        setCodigoCompra(response.data.ultimoCodigo + 1);
       } catch (error) {
-        console.error("Error al obtener el último código de venta:", error);
+        console.error("Error al obtener el último código de compra:", error);
       }
     };
 
     fetchProductos();
-    fetchClientes();
-    fetchUltimoCodigoVenta();
+    fetchProveedores();
+    fetchUltimoCodigoCompra();
   }, []);
 
-  const handleClientesChange = (event) => {
-    setSelectedClientes(event.target.value);
+  const handleProveedorChange = (event) => {
+    setSelectedProveedor(event.target.value);
   };
 
   const handleRowChange = (index, field, value) => {
@@ -129,32 +129,34 @@ const Addventa = () => {
     closeModal();
   };
 
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const nuevaVenta = {
+      const nuevaCompra = {
         usuario: localStorage.getItem('id'),
-        codigoVenta,
-        fechaVenta,
+        codigoCompra,
+        fechaCompra,
         total,
-        id_cliente: selectedClientes,
+        id_proveedor: selectedProveedor,
         productos: rows.map(row => ({
           ...row,
           iva: row.iva ? 1 : 0 // Convertir iva a 1 si es true, 0 si es false
         })),
       };
 
-      await axios.post('/api/ventas', nuevaVenta)
-      toast.success("Venta agregada con éxito");
-      navigate('/principal/venta');
+      console.log("Nueva compra a enviar:", nuevaCompra); // Verificar el objeto antes de enviarlo
+
+      // Enviar la nueva compra al backend
+      await axios.post('/api/compras', nuevaCompra);
+      toast.success("Compra agregada con éxito");
+      navigate('/principal/compra');
     } catch (error) {
-      console.error("Error al agregar la venta:", error);
-      toast.error("Error al agregar la venta");
+      console.error("Error al agregar la compra:", error);
+      toast.error("Error al agregar la compra");
     }
   };
 
-  // Agrega este useEffect para calcular el total dinámicamente
+  // Calcular el total dinámicamente
   useEffect(() => {
     const nuevoTotal = rows.reduce((acc, row) => acc + parseFloat(row.subtotal || 0), 0);
     setTotal(nuevoTotal.toFixed(2)); // Redondear a 2 decimales
@@ -168,35 +170,35 @@ const Addventa = () => {
           PRINCIPAL
         </Link>
         {" / "}
-        <Link to="/principal/venta" className="text-blue-500 hover:underline font-bold">
-          VENTA
+        <Link to="/principal/compra" className="text-blue-500 hover:underline font-bold">
+          COMPRA
         </Link>
         {" / "}
-        <Link to="/principal/venta/add" className="text-blue-500 hover:underline font-bold">
+        <Link to="/principal/compra/add" className="text-blue-500 hover:underline font-bold">
           AGREGAR
         </Link>
       </div>
       <ToastContainer />
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Agregar Venta</h1>
+        <h1 className="text-3xl font-bold">Agregar Compra</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <div className="flex flex-col space-y-4">
           <div className="flex flex-col space-y-2">
-            <label htmlFor="codigoVenta" className="font-bold">Código de Venta</label>
-            <input type="number" id="codigoVenta" name="codigoVenta" className="p-2 border border-gray-300 rounded w-full" value={codigoVenta} disabled />
+            <label htmlFor="codigoCompra" className="font-bold">Código de Compra</label>
+            <input type="number" id="codigoCompra" name="codigoCompra" className="p-2 border border-gray-300 rounded w-full" value={codigoCompra} disabled />
           </div>
           <div className="flex flex-col space-y-2">
-            <label htmlFor="fechaVenta" className="font-bold">Fecha de Venta</label>
-            <input type="date" id="fechaVenta" name="fechaVenta" className="p-2 border border-gray-300 rounded w-full" value={fechaVenta} onChange={(e) => setFechaVenta(e.target.value)} />
+            <label htmlFor="fechaCompra" className="font-bold">Fecha de Compra</label>
+            <input type="date" id="fechaCompra" name="fechaCompra" className="p-2 border border-gray-300 rounded w-full" value={fechaCompra} onChange={(e) => setFechaCompra(e.target.value)} />
           </div>
           <div className="flex flex-col space-y-2">
-            <label htmlFor="cliente" className="font-bold">Cliente</label>
-            <select id="cliente" name="cliente" className="p-2 border border-gray-300 rounded w-full" value={selectedClientes} onChange={handleClientesChange}>
-              <option value="">Seleccione un cliente</option>
-              {clientes.map((cliente) => (
-                <option key={cliente.id} value={cliente.id}>{cliente.nombre}</option>
+            <label htmlFor="proveedor" className="font-bold">Proveedor</label>
+            <select id="proveedor" name="proveedor" className="p-2 border border-gray-300 rounded w-full" value={selectedProveedor} onChange={handleProveedorChange}>
+              <option value="">Seleccione un proveedor</option>
+              {proveedores.map((proveedor) => (
+                <option key={proveedor.id} value={proveedor.id}>{proveedor.nombre}</option>
               ))}
             </select>
           </div>
@@ -207,7 +209,7 @@ const Addventa = () => {
                 <tr className="bg-gray-200">
                   <th className="border border-black-200 px-4 py-2 w-10">Index</th>
                   <th className="border border-black-200 px-4 py-2 w-20">Código</th>
-                  <th className="border border-black-200 px-4 py-2 w-full" >Producto</th>
+                  <th className="border border-black-200 px-4 py-2 w-full">Producto</th>
                   <th className="border border-black-200 px-4 py-2 w-16">Cantidad</th>
                   <th className="border border-black-200 px-4 py-2">IVA</th>
                   <th className="border border-black-200 px-4 py-2 w-30">Precio</th>
@@ -271,7 +273,7 @@ const Addventa = () => {
           </div>
 
           <div className="flex flex-col space-y-2">
-            <label htmlFor="Total" className="font-bold">Total de Venta</label>
+            <label htmlFor="Total" className="font-bold">Total de Compra</label>
             <input type="number" id="Total" name="Total" className="p-2 border border-gray-300 rounded w-full" value={total} disabled />
           </div>
         </div>
@@ -343,4 +345,4 @@ const Addventa = () => {
   );
 };
 
-export default Addventa;
+export default AddCompra;

@@ -1,5 +1,5 @@
 
-import { ShoppingCart, Box, Factory, Users, Tags, User, Home, Menu, X } from "lucide-react";
+import { ShoppingCart, Box, Factory, Users, Tags, User, Home, Menu, X, Store } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -29,6 +29,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 <li className="flex items-center space-x-2 p-2 rounded hover:bg-gray-700 hover:text-blue-400">
                     <ShoppingCart size={35}  className="pl-3"/>
                     <Link to="/principal/venta" className="flex items-center space-x-2 p-2 w-full rounded ">Venta</Link>
+                </li>
+                <li className="flex items-center space-x-2 p-2 rounded hover:bg-gray-700 hover:text-blue-400">
+                    <Store size={35}  className="pl-3"/>
+                    <Link to="/principal/compra" className="flex items-center space-x-2 p-2 w-full rounded ">Compra</Link>
                 </li>
                 <li className="flex items-center space-x-2 p-2 rounded hover:bg-gray-700 hover:text-blue-400">
                     <Box size={35}  className="pl-3"/>

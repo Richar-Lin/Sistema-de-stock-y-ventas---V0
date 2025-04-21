@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
-const generarJWT = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generarJWT = (id, usuario, tipo) => {
+    return jwt.sign({ id, usuario, tipo }, process.env.JWT_SECRET, {
         expiresIn: "8h",
     });
 };

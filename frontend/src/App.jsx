@@ -23,6 +23,9 @@ import Venta from "./paginas/ventas/venta";
 import Addventa from "./paginas/ventas/addventa";
 import Editventa from "./paginas/ventas/editventa";
 import ProtectedRoute from "./helpers/ProtectedRoutes"; // Importa el componente de protección
+import Compra from "./paginas/compras/compra";
+import AddCompra from "./paginas/compras/addcompra";
+import EditCompra from "./paginas/compras/editcompra";
 
 function App() {
   return (
@@ -62,6 +65,9 @@ function App() {
           <Route path="venta" element={<Venta />} />
           <Route path="venta/add" element={<Addventa />} />
           <Route path="venta/edit/:id" element={<Editventa />} />
+          <Route path="compra" element={<Compra />} />
+          <Route path="compra/add" element={<AddCompra />} />
+          <Route path="compra/edit/:id" element={<EditCompra />} />
         </Route>
       </Routes>
     </BrowserRouter>

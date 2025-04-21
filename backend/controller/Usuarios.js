@@ -83,47 +83,51 @@ const autenticar = async (req, res) => {
   const { nombre_usuario, password } = req.body;
 
   try {
+    console.log("Datos recibidos:", { nombre_usuario, password });
+
     // Comprobar si el usuario existe
     const usuario = await Usuario.findOne({ where: { nombre_usuario: nombre_usuario } });
-
-
     if (!usuario) {
+      console.error("Usuario no encontrado");
       return res.status(404).json({ mensaje: 'El Usuario no existe' });
     }
 
     console.log("Usuario encontrado:", usuario);
+
     // Verificar si tiene una contraseña registrada
     if (!usuario.password) {
+      console.error("El usuario no tiene contraseña registrada");
       return res.status(500).json({ mensaje: 'Error: el usuario no tiene contraseña registrada' });
     }
 
+    // Validar la contraseña
     const passwordValido = await bcrypt.compare(password, usuario.password);
-    console.log("Resultado de la comparación:", passwordValido);
+    console.log("Resultado de la comparación de contraseñas:", passwordValido);
 
     if (!passwordValido) {
+      console.error("Contraseña incorrecta");
       return res.status(403).json({ mensaje: 'El Password es incorrecto' });
     }
 
-    // Autenticar y generar token
-    const token = generarJWT(usuario.id);
+    // Generar el token
+    console.log("Generando token...");
+    const token = generarJWT(usuario.id, usuario.nombre_usuario, usuario.id_tipo_usuario);
     if (!token) {
+      console.error("Error al generar el token");
       return res.status(500).json({ mensaje: 'Error al generar el token' });
     }
 
-    res.json({
-      id: usuario.id,
-      nombre_usuario: usuario.nombre_usuario,
-      id_tipo_usuario: usuario.id_tipo_usuario,
-      token,
-      id: usuario.id,
-    });
+    console.log("Token generado:", token);
 
+    // Responder con los datos del usuario y el token
+    res.json({
+      token,
+    });
   } catch (error) {
     console.error("Error en la autenticación:", error);
     res.status(500).json({ mensaje: 'Error al autenticar el usuario' });
   }
 };
-
 
 // Función para actualizar un usuario
 const actualizarUsuario = async (req, res) => {

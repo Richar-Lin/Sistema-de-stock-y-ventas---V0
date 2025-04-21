@@ -3,12 +3,13 @@ import path from "path";
 import db from "./config/db.js";
 import dotenv from 'dotenv';
 import usuarioRoutes from "./routes/UsuarioRoutes.js";
-import rolesRoutes from "./routes/RolesRoutes.js"; 
+import rolesRoutes from "./routes/RolesRoutes.js";
 import proveedoresRoutes from "./routes/ProveedoresRoutes.js";
 import categoriasRoutes from "./routes/CategoriaRoutes.js";
 import clientesRoutes from "./routes/ClientesRoutes.js";
 import productosRoutes from "./routes/ProductosRoutes.js"
 import ventasRoutes from "./routes/VentasRoutes.js";
+import comprasRoutes from "./routes/ComprasRoutes.js";
 
 
 // Cargar las variables de entorno desde el archivo .env
@@ -27,6 +28,7 @@ const PORT = process.env.PORT || 4000;
 
 // Middleware para parsear JSON
 app.use(express.json());
+
 
 // Usar las rutas de usuario
 app.use('/api/usuarios', usuarioRoutes);
@@ -48,6 +50,9 @@ app.use('/api/productos', productosRoutes);
 
 // Usar las rutas de ventas
 app.use('/api/ventas', ventasRoutes);
+
+// Usar las rutas de compras
+app.use('/api/compras', comprasRoutes);
 
 // Servir archivos estáticos de React
 const __dirname = path.resolve();

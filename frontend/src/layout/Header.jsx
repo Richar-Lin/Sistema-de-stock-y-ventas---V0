@@ -1,29 +1,31 @@
 import { LucideUser } from "lucide-react";
 import { useState, useEffect } from "react";
-import axios from "axios";
-
+import { jwtDecode } from "jwt-decode"; 
 
 const Header = () => {
-    const id = localStorage.getItem("id");
+
     const [userName, setUserName] = useState("");
     const [showMenu, setShowMenu] = useState(false); // Estado para mostrar/ocultar el menú
 
     useEffect(() => {
-        const fetchUsuario = async () => {
+        // Recuperar el token desde localStorage
+        const token = localStorage.getItem("token");
+        if (token) {
             try {
-                const response = await axios.get(`/api/usuarios/${id}`);
-                setUserName(response.data.nombre_usuario);
+                // Decodificar el token para obtener los datos del usuario
+                const decodedToken = jwtDecode(token);
+                localStorage.setItem("id", decodedToken.id);
+                setUserName(decodedToken.usuario);
             } catch (error) {
-                console.error("Error al obtener la venta:", error);
+                console.error("Error al decodificar el token:", error);
             }
-        };
-        fetchUsuario();
+        }
+        
     }, []);
 
     const handleLogout = () => {
         // Eliminar datos del usuario de localStorage
         localStorage.removeItem("token");
-        localStorage.removeItem("id");
 
         // Redirigir al usuario a la página de inicio de sesión
         window.location.href = "/";
@@ -48,10 +50,10 @@ const Header = () => {
 
                         {/* Menú desplegable */}
                         {showMenu && (
-                            <div className="absolute right-0 mt-2 w-45 bg-gray-800 text-white rounded shadow-lg  hover:bg-gray-700 hover:text-blue-400">
+                            <div className="absolute right-0 mt-2 w-35 bg-gray-800 text-white rounded shadow-lg  hover:bg-gray-700 hover:text-blue-400">
                                 <ul>
                                     <li className="px-4 py-2 cursor-pointer">
-                                        <button onClick={handleLogout} className="w-full text-left">
+                                        <button onClick={handleLogout} className="w-full text-center">
                                             Logout
                                         </button>
                                     </li>

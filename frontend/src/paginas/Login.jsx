@@ -24,7 +24,7 @@ const Login = () => {
 
       // Guardar el token en el almacenamiento local
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('id', response.data.id);
+      
 
       toast.success("Inicio de sesión exitoso");
       navigate('/principal');

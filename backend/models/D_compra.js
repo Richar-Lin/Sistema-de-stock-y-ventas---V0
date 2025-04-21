@@ -1,11 +1,11 @@
 import Sequelize from "sequelize";
 import db from "../config/db.js";
 
-export const d_venta = db.define('detalle_venta', {
-    id_venta: {
+export const D_compra = db.define('detallecompras', {
+    id_compra: {
         type: Sequelize.INTEGER,
         references: {
-            model: 'ventas',
+            model: 'compras',
             key: 'id'
         }
     },
@@ -24,7 +24,7 @@ export const d_venta = db.define('detalle_venta', {
         allowNull: false
     },
     precio: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DECIMAL,
         allowNull: false
     },
     subtotal: {

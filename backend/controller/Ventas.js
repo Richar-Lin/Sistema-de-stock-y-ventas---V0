@@ -255,7 +255,7 @@ const eliminarVenta = async (req, res) => {
 
         Promise.all(detalles.map(async (detalle) => {
             const producto = await Producto.findByPk(detalle.id_producto);
-            producto.cantidad += detalle.cantidad; // Aumentar la cantidad del producto
+            producto.stock += detalle.cantidad; // Aumentar la cantidad del producto
             await producto.save(); // Guardar los cambios en la base de datos
             detalle.estado = 0; // Cambiar el estado a 0 para desactivar el detalle
             await detalle.save();
